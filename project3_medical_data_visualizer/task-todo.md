@@ -57,7 +57,7 @@ By each number in the medical_data_visualizer.py file, add the code from the ass
 1. Group and reformat the data in df_cat to split it by cardio. Show the counts of each feature. You will have to rename one of the columns for the catplot to work correctly.
 1. Convert the data into long format and create a chart that shows the value counts of the categorical features using the following method provided by the seaborn library import : sns.catplot()
 1. Get the figure for the output and store it in the fig variable
-1. Do not modify the next two lines
+1. Do not modify the next two lines \[sic\]
 1. Draw the Heat Map in the draw_heat_map function
 1. Clean the data in the df_heat variable by filtering out the following patient segments that represent incorrect data:
     - height is less than the 2.5th percentile (Keep the correct data with (df['height'] >= df['height'].quantile(0.025)))
@@ -68,7 +68,7 @@ By each number in the medical_data_visualizer.py file, add the code from the ass
 1. Generate a mask for the upper triangle and store it in the mask variable
 1. Set up the matplotlib figure
 1. Plot the correlation matrix using the method provided by the seaborn library import: sns.heatmap()
-1. Do not modify the next two lines
+1. Do not modify the next two lines \[sic\]
 
 ## Development
 

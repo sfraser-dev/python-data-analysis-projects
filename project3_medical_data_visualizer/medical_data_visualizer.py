@@ -4,15 +4,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # 1
+# Import data
 df = pd.read_csv('medical_examination.csv')
 
 # 2
 # Calc BMI and create overweight column
-# Create new column 'height_meters' by dividing 'height' by 100
+# Create new temporary column 'height_meters' by dividing 'height' by 100
 df['height_meters'] = df['height'] / 100
 print("\n---------- df['height_meters]:")
 print(df['height_meters'])
-# Create new column 'bmi' by dividing 'weight' by 'height_meters' squared
+# Create new temporary column 'bmi' by dividing 'weight' by 'height_meters' squared
 df['bmi'] = df['weight'] / (df['height_meters'] ** 2)
 print("\n---------- df['bmi]:")
 print(df['bmi'])
@@ -20,6 +21,8 @@ print(df['bmi'])
 df['overweight'] = (df['bmi'] > 25).astype(int)
 print("\n---------- df['overweight]:")
 print(df['overweight'])
+# Drop the temporary columns used for the overweight calculation
+df.drop(['height_meters', 'bmi'], axis=1, inplace=True)
 
 # 3
 # Normalize data by making 0 always good and 1 always bad. If the value of cholesterol is 1, set the value to 0. If the value is more than 1, set the value to 1.
@@ -48,8 +51,8 @@ df['gluc'] = (df['gluc'] > 1).astype(int)
 print("\n---------- df['gluc]:")
 print(df['gluc'])
 
-
 # 4
+# Draw Categorical Plot
 def draw_cat_plot():
     """Draw a categorical plot using seaborn's catplot."""
 
@@ -63,7 +66,6 @@ def draw_cat_plot():
     df_cat = pd.melt(df, id_vars=['cardio'], value_vars=columns_to_melt)
     print("\n---------- df_cat (melt):")
     print(df_cat)
-
 
     # 6
     # Group and reformat the data in df_cat to split it by cardio. Show the counts of each feature. You will have to rename one of the columns for the catplot to work correctly.
@@ -81,16 +83,25 @@ def draw_cat_plot():
     print("\n---------- df_cat:")
     print(df_cat)
 
+    # Draw the catplot with 'sns.catplot()'
+    #fig = sns.catplot(data = df_cat, kind='count',  x='variable', hue='value', col='cardio').set(ylabel = 'total').fig
 
     # 7
-
-
-
     # 8
-    fig = None
-
-
     # 9
+    # Draw the catplot with seaborn
+    facet_grid = sns.catplot(
+        x='variable', 
+        hue='value', 
+        col='cardio', 
+        kind='count', 
+        data=df_cat
+    ).set(ylabel = 'total')
+
+    # Seaborn FaceGrid to Matplotlib Figure
+    fig = facet_grid.figure
+
+    # Do not modify the next two lines
     fig.savefig('catplot.png')
     return fig
 
@@ -98,22 +109,37 @@ def draw_cat_plot():
 # 10
 def draw_heat_map():
     # 11
-    df_heat = None
+    # Clean the data by filtering out rows based on conditions given in task
+    df_heat = df[
+        (df['ap_lo'] <= df['ap_hi']) &  # Ensure 'ap_lo' is less than or equal to 'ap_hi'
+        (df['height'] >= df['height'].quantile(0.025)) &  # Remove bottom 2.5% of 'height' values
+        (df['height'] <= df['height'].quantile(0.975)) &  # Remove top 2.5% of 'height' values
+        (df['weight'] >= df['weight'].quantile(0.025)) &  # Remove bottom 2.5% of 'weight' values
+        (df['weight'] <= df['weight'].quantile(0.975))    # Remove top 2.5% of 'weight' values
+    ]
 
     # 12
-    corr = None
+    # Calculate the correlation matrix between all pairs of columns in the cleaned data
+    corr = df_heat.corr()
 
     # 13
-    mask = None
-
-
+    # Generate mask for the upper triangle of the correlation matrix to avoid redundant information
+    # Note: 'triu' stands for 'triangle upper'
+    mask = np.triu(corr)
 
     # 14
-    fig, ax = None
-
+    # Create a matplotlib figure and axes for plotting
+    fig, ax = plt.subplots()
+    
     # 15
-
-
+    # Draw the heatmap using seaborn's heatmap function
+    ax = sns.heatmap(
+        corr,           # Data to visualize (correlation matrix)
+        mask=mask,      # Hide the upper triangle
+        annot=True,     # Show correlation values on the heatmap
+        fmt='0.1f',     # Format the annotations to one decimal place
+        square=True     # Make the heatmap cells square for better visual representation
+    )
 
     # 16
     fig.savefig('heatmap.png')
