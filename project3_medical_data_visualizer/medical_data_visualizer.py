@@ -31,13 +31,26 @@ print(df['gluc'])
 
 # 4
 def draw_cat_plot():
+    """Draws a categorical plot using seaborn's catplot."""
+
     # 5
-    df_cat = None
+    # Create DF for cat plot using `pd.melt` using just the values from 'cholesterol', 'gluc', 'smoke', 'alco', 'active', and 'overweight'.
+    columns_to_melt = ['cholesterol', 'gluc', 'smoke', 'alco', 'active', 'overweight']
+    print("\n---------- columns_to_melt:")
+    print(columns_to_melt)
+    df_cat = pd.melt(df, id_vars=['cardio'], value_vars=columns_to_melt)
+    print("\n---------- df_cat:")
+    print(df_cat)
 
 
     # 6
-    df_cat = None
-    
+    # Group and reformat the data to split it by 'cardio'.
+    # Show counts of each feature.
+    # Need to rename one of the cols for catplot to work proprly.
+    df_cat = df_cat.groupby(['cardio', 'variable', 'value'])['value'].count().reset_index(name='total')
+    print("\n---------- df_cat:")
+    print(df_cat)
+
 
     # 7
 
