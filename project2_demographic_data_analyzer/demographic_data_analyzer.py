@@ -3,27 +3,46 @@ import pandas as pd
 
 def calculate_demographic_data(print_data=True):
     # Read data from file
-    df = None
+    df = pd.read_csv("adult.data.csv")
 
     # How many of each race are represented in this dataset? This should be a Pandas series with race names as the index labels.
-    race_count = None
+    race_count = df['race'].value_counts()
 
     # What is the average age of men?
-    average_age_men = None
+    men_only_df = df[df['sex'] == 'Male']
+    average_age_men = round(men_only_df['age'].mean(), 1)
 
     # What is the percentage of people who have a Bachelor's degree?
-    percentage_bachelors = None
+    bachelors_degree_df = df[df['education'] == 'Bachelors']
+    # Calculate percentage
+    percentage_bachelors = round(
+        (bachelors_degree_df.shape[0] / df.shape[0]) * 100, 1
+    )
 
     # What percentage of people with advanced education (`Bachelors`, `Masters`, or `Doctorate`) make more than 50K?
-    # What percentage of people without advanced education make more than 50K?
+    advanced_education_levels = ['Bachelors', 'Masters', 'Doctorate']
 
-    # with and without `Bachelors`, `Masters`, or `Doctorate`
-    higher_education = None
-    lower_education = None
+    # Filter dataframe to only have people with advanced education
+    higher_education = df[df['education'].isin(advanced_education_levels)]
 
-    # percentage with salary >50K
-    higher_education_rich = None
-    lower_education_rich = None
+    # What percentage of people without advanced education (lower education) make more than 50K?
+    lower_education = df[~df['education'].isin(advanced_education_levels)]
+
+    # Filter higher education dataframe to only include people earning more than 50K
+    higher_education_rich = higher_education[higher_education['salary'] == '>50K']
+
+    # Filter lower education dataframe to only include people earning more than 50K
+    lower_education_rich = lower_education[lower_education['salary'] == '>50K']
+
+    # Calculate percentage of people with advanced education who earn more than 50K
+    higher_education_rich= round(
+        (higher_education_rich.shape[0] / higher_education.shape[0]) * 100, 1
+    )
+
+    # Calculate percentage of people with lower education who earn more than 50K
+    lower_education_rich= round(
+        (lower_education_rich.shape[0] / lower_education.shape[0]) * 100, 1
+    )
 
     # What is the minimum number of hours a person works per week (hours-per-week feature)?
     min_work_hours = None
