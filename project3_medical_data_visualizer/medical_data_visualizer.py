@@ -41,7 +41,6 @@ print("\n---------- cholesterol_int:")
 print(cholesterol_int)
 # Assign resulting Series back to the 'cholesterol' column in DF
 df['cholesterol'] = cholesterol_int
-# shorthand: df['cholesterol'] = (df['cholesterol'] > 1).astype(int)
 print("\n---------- df['cholesterol]:")
 print(df['cholesterol'])
 
@@ -82,9 +81,6 @@ def draw_cat_plot():
     print(counted_values)
     print("\n---------- df_cat:")
     print(df_cat)
-
-    # Draw the catplot with 'sns.catplot()'
-    #fig = sns.catplot(data = df_cat, kind='count',  x='variable', hue='value', col='cardio').set(ylabel = 'total').fig
 
     # 7
     # 8

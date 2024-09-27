@@ -20,7 +20,6 @@ def calculate_demographic_data(print_data=True):
     men_only_df = df[male_mask_series]
     print("\n---------- men_only_df:")
     print(men_only_df)
-    # shorthand: men_only_df = df[df['sex'] == 'Male']
 
     # Calculate average age of men to one decimal place
     average_age_men = round(men_only_df['age'].mean(), 1)
@@ -31,7 +30,6 @@ def calculate_demographic_data(print_data=True):
     bachelors_degree_series = df['education'] == 'Bachelors'
     # Use bachelors_degree_series to filter the DF returning new DF with only people with Bachelors degree
     bachelors_degree_df = df[bachelors_degree_series]
-    # shorthand: bachelors_degree_df = df[df['education'] == 'Bachelors']
 
     # Calculate percentage (of people with Bachelors degree to one decimal place)
     # Number of bachelors_degree_df rows (.shape[0]) divided by total number of rows
@@ -55,7 +53,6 @@ def calculate_demographic_data(print_data=True):
     higher_education_mask = education_column.isin(advanced_education_levels)  # is series element in the list?
     # Use boolean mask to filter the DF
     higher_education = df[higher_education_mask]
-    #shorthand: higher_education = df[df['education'].isin(advanced_education_levels)]
     print("\n---------- higher_education:")
     print(higher_education)
 
@@ -66,7 +63,6 @@ def calculate_demographic_data(print_data=True):
     lower_education_mask = ~education_column.isin(advanced_education_levels)
     # Use the boolean mask to filter the DataFrame for lower education levels
     lower_education = df[lower_education_mask]
-    # shorthand: lower_education = df[~df['education'].isin(advanced_education_levels)]
     print("\n---------- lower_education:")
     print(lower_education)
 
@@ -77,7 +73,6 @@ def calculate_demographic_data(print_data=True):
     rich_salary_mask = salary_column == '>50K'
     # Use boolean mask to filter the higher education DF for those earning >50K
     higher_education_rich = higher_education[rich_salary_mask]
-    # shorthand: higher_education_rich = higher_education[higher_education['salary'] == '>50K']
     print("\n---------- higher_education_rich:")
     print(higher_education_rich)
 
