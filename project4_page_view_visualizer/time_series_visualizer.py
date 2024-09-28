@@ -96,7 +96,7 @@ def draw_box_plot():
     fig, ax = plt.subplots(1, 2, figsize=(15,5))
 
     # Box plot in 1st subplot (ax[0])
-    sns.boxplot(data = df_box, x = "year", y = "value", ax = ax[0] ) 
+    sns.boxplot(data = df_box, x = "year", y = "value", ax = ax[0]) 
     (ax[0]).set_xlabel("Year")
     (ax[0]).set_ylabel("Page Views")
     (ax[0]).set_title("Year-wise Box Plot (Trend)")
