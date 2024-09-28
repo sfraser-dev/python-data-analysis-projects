@@ -4,89 +4,109 @@ import seaborn as sns
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
-# 1
 # Import data (Make sure to parse dates. Consider setting index column to 'date'.)
+df = pd.read_csv("fcc-forum-pageviews.csv", index_col="date")
+df.index = pd.to_datetime(df.index)
 
-file_path_to_csv = "fcc-forum-pageviews.csv"
-df = pd.read_csv(file_path_to_csv) 
-print("\n------- df:")
-print(df.head())
-# Set 'date' col as the index of the DataFrame
-df.set_index('date', inplace=True)
-print("\n------- df (date as idx):")
-print(df.head())
+# Clean the data
+# Calculate the 2.5th & 97.5th percentiles of the 'value' column
+bottom_percentile = df['value'].quantile(0.025)
+top_percentile = df['value'].quantile(0.975)
+# Filter DF to keep only rows where 'value' is >=2.5th percentile
+df = df[(df['value'] >= bottom_percentile)]
+# Filter DF to keep only rows where 'value' is <=97.5th percentile
+df = df[(df['value'] <= top_percentile)]
 
-# 2
-# Clean data
-
-# Calc the 2.5th and 97.5th percentiles of 'value' col
-lower_threshold = df['value'].quantile(0.025)
-upper_threshold = df['value'].quantile(0.975)
-
-# Filter the DataFrame to keep only rows within the desired range
-df_cleaned = df[df['value'] >= lower_threshold]
-df_cleaned = df_cleaned[df_cleaned['value'] <= upper_threshold]
-print("\n------- df (cleaned):")
-print(df_cleaned.head())
-
-
-#USED NOTEBOOK TO SEE WHAT'S HAPPENING MORE CLEARLY!!
-
-# 3
-def draw_line_plot():
-  # Create the line plot using the cleaned data
-  fig, ax = plt.subplots(figsize=(15, 5))  # Adjust figure size as needed
-  ax.plot(df_cleaned.index, df_cleaned['value'], color='red', linewidth=1)
-
-  # Set the title and labels
-  ax.set_title('Daily freeCodeCamp Forum Page Views 5/2016-12/2019')
-  ax.set_xlabel('Date')
-  ax.set_ylabel('Page Views')
-
-  # Show the plot
-  plt.show()
-
-"""
 
 def draw_line_plot():
     # Draw line plot
+    fig, ax = plt.subplots(figsize=(12, 6))  # Create figure and axis
+    ax.plot(df.index, df['value'], color='pink')  # Plot data
 
-
-
-
+    # Set labels
+    ax.set_title('Daily freeCodeCamp Forum Page Views 5/2016-12/2019')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Page Views')
 
     # Save image and return fig (don't change this part)
     fig.savefig('line_plot.png')
     return fig
 
+
 def draw_bar_plot():
-    # Copy and modify data for monthly bar plot
-    df_bar = None
+    """
+    Draws a bar chart showing the average daily page views for each month grouped by year.
+
+    This function takes no args and returns a Matplotlib figure. The chart displays
+    the average daily page views on the y-axis and the years on the x-axis. Each month
+    is represented by a different coloured bar in the chart. The plot is saved as 'bar_plot.png'.
+    """
+
+    # Copy the data and add columns for year and month
+    df_bar = df.copy()
+    df_bar['year'] = df_bar.index.year
+    df_bar['month'] = df_bar.index.strftime('%B')
+
+
+    # Group / stack the data by year and month using groupby() to obtain a GroupBy (stacked) object
+    # Aggregate this grouped data by taking the mean of the 'value' column
+    # Apply unstack() to the grouped data to create a pivot table
+
+    # Original data is ordered by date (year, month, day) and value
+    # Want to group by year, month and value (where value is the average of all values in that month)
+    df_bar_grouped = df_bar.groupby(['year', 'month'])['value'].mean()
+
+    # Unstack the grouped data to create a pivot table (with months as columns and years as rows)
+    df_bar = df_bar_grouped.unstack()
+
+    # Order columns by month
+    months_of_year = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    # reindex() will order the columns by the order of "the_months"
+    df_bar = df_bar.reindex(columns=months_of_year)
 
     # Draw bar plot
-
-
-
-
+    fig, ax = plt.subplots(figsize=(15, 5))
+    df_bar.plot(kind='bar', ax=ax)
+    ax.set(xlabel="Years", ylabel="Average Page Views")
+    ax.legend(title='Months')
 
     # Save image and return fig (don't change this part)
     fig.savefig('bar_plot.png')
     return fig
 
+
 def draw_box_plot():
-    # Prepare data for box plots (this part is done!)
+    """
+    Draws two box plots to visualize the distribution of page views over time. 
+    One plot shows year-wise trends, and the other shows month-wise seasonality.
+    """
+    
+    # Copy the data and add columns for year and month
     df_box = df.copy()
-    df_box.reset_index(inplace=True)
-    df_box['year'] = [d.year for d in df_box.date]
-    df_box['month'] = [d.strftime('%b') for d in df_box.date]
+    df_box['year'] = df_box.index.year
+    df_box['month'] = df_box.index.strftime('%b')
 
     # Draw box plots (using Seaborn)
+    # Add a new (month number) column to DF (Jan=1, Feb=2, Mar=3, etc)
+    df_box['month_num'] = df.index.month
+    # Sort DF based on 'month_num'
+    df_box = df_box.sort_values('month_num')
+    
+    # Create a figure with 2 subplots (1 row, 2 columns)
+    fig, ax = plt.subplots(1, 2, figsize=(15,5))
 
+    # Box plot in 1st subplot (ax[0])
+    sns.boxplot(data = df_box, x = "year", y = "value", ax = ax[0] ) 
+    (ax[0]).set_xlabel("Year")
+    (ax[0]).set_ylabel("Page Views")
+    (ax[0]).set_title("Year-wise Box Plot (Trend)")
 
-
-
+    # Box plot in 2nd subplot (ax[1])
+    sns.boxplot(data = df_box, x = "month", y = "value", ax = ax[1])
+    (ax[1]).set_xlabel("Month")
+    (ax[1]).set_ylabel("Page Views")
+    (ax[1]).set_title("Month-wise Box Plot (Seasonality)")
 
     # Save image and return fig (don't change this part)
     fig.savefig('box_plot.png')
     return fig
-"""
