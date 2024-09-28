@@ -117,7 +117,7 @@ def draw_cat_plot():
     # 9
     # Save figure to 'catplot.png'.
     fig.savefig('catplot.png')
-    # Extract matplotlib Figure object from FacetGrid object (`fig`).
+    # Extract matplotlib Figure object from FacetGrid object ('fig').
     fig = fig.figure
     # Return the Figure object.
     return fig
