@@ -53,57 +53,90 @@ print(df['gluc'])
 # 4
 # Draw Categorical Plot
 def draw_cat_plot():
-    """Draw a categorical plot using seaborn's catplot."""
+    """
+    Draws a categorical plot showing the relationship between various health factors and cardiovascular disease.
+
+    Args:
+      df (pandas.DataFrame): The DataFrame containing the medical data.
+
+    Returns:
+      matplotlib.figure.Figure: The matplotlib Figure object containing the catplot.
+    """
+
+    #  --------------------------------- Prepare the Data ---------------------------------
 
     # 5
-    # Create a DataFrame for the cat plot using pd.melt with values from cholesterol, gluc, smoke, alco, active, and overweight in the df_cat variable.
-    # Note: .melt() is used to transform a DF from wide to long format. In a wide format, each variable is in a separate col, while in a long format, all variables are stacked into a single col with another col indicating which variable each value corresponds to.
-    columns_to_melt = ['cholesterol', 'gluc', 'smoke', 'alco', 'active', 'overweight']
-    print("\n---------- columns_to_melt:")
-    print(columns_to_melt)
-    # Melting the DF
-    df_cat = pd.melt(df, id_vars=['cardio'], value_vars=columns_to_melt)
-    print("\n---------- df_cat (melt):")
-    print(df_cat)
+    # Create new DF 'df_cat' using 'pd.melt'.
+    # This will transform the data from wide format to long format, making it suitable for a catplot.
+    # Select only the columns 'cholesterol', 'gluc', 'smoke', 'alco', 'active', and 'overweight' as categories.
+    df_cat = pd.melt(df, 
+                     id_vars=['cardio'], 
+                     value_vars=['cholesterol', 'gluc', 'smoke', 'alco', 'active', 'overweight'])
+
+    # Reset the index of the DataFrame.
+    # This ensures that the 'index' column reflects the row number, which will be used for counting later.
+    df_cat = df_cat.reset_index()
+
+    # --------------------------------- Group and Aggregate ---------------------------------
 
     # 6
-    # Group and reformat the data in df_cat to split it by cardio. Show the counts of each feature. You will have to rename one of the columns for the catplot to work correctly.
-    # Group the DF by 'cardio', 'variable', and 'value' using .groupby()
-    # Note: .groupby() identifies all unique combinations of the values in the specified columns. A powerful abstraction for manipulating and summarizing data.
-    grouped_df = df_cat.groupby(['cardio', 'variable', 'value'])  # produces a SeriesGroupBy object, cannot print
-    # Count the occurrences of each group in the 'value' column
-    counted_values = grouped_df['value'].count()
-    # Reset index to turn the grouped data back into a DF
-    reset_df = counted_values.reset_index(name='total')
-    # Assign resultant DF to df_cat
-    df_cat = reset_df
-    print("\n---------- counted_values:")
-    print(counted_values)
-    print("\n---------- df_cat:")
-    print(df_cat)
-
     # 7
+    # Group the data by 'variable', 'cardio', and 'value' columns.
+    # This groups the data by category, cardiovascular disease status, and the value of the category (e.g., 1 for high cholesterol).
+    # Then, aggregate the data by counting the occurrences of each combination using 'agg('count')`.
+    # This counts how many people fall into each group (e.g., how many people with cardiovascular disease have high cholesterol).
+    # Rename the 'index' column to 'total' for clarity. This column now represents the count for each group.
+    df_cat = df_cat.groupby(['variable', 'cardio', 'value']) \
+                   .agg('count') \
+                   .rename({'index': 'total'}, axis=1)
+    # Reset the index to make 'variable', 'cardio', 'value', and 'total' regular columns.
+    df_cat = df_cat.reset_index()
+
+    # --------------------------------- Create the Catplot ---------------------------------
+
     # 8
+    # Create catplot using Seaborn's `catplot` function.
+    # 'x='variable'`: Categories ('cholesterol', 'gluc', etc.) are plotted on the x-axis.
+    # 'y='total': Counts are plotted on the y-axis.
+    # 'hue='cardio': Data is colored differently based on cardiovascular disease status.
+    # 'col='value': Creates separate plots for each value of the categories (e.g., 0 and 1 for cholesterol).
+    # 'kind='bar':  Specifies that the plot should be a bar chart.
+    # 'height=6': Sets the height of each subplot.
+    # 'aspect=1.5': Sets the aspect ratio of each subplot.
+    fig = sns.catplot(x='variable', 
+                     y='total', 
+                     hue='cardio', 
+                     col='value', 
+                     data=df_cat, 
+                     kind='bar', 
+                     height=5, 
+                     aspect=1.6)
+
+    # --------------------------------- Save and Return ---------------------------------
+
     # 9
-    # Draw the catplot with seaborn
-    facet_grid = sns.catplot(
-        x='variable', 
-        hue='value', 
-        col='cardio', 
-        kind='count', 
-        data=df_cat
-    ).set(ylabel = 'total')
-
-    # Seaborn FaceGrid to Matplotlib Figure
-    fig = facet_grid.figure
-
-    # Do not modify the next two lines
+    # Save figure to 'catplot.png'.
     fig.savefig('catplot.png')
+    # Extract matplotlib Figure object from FacetGrid object (`fig`).
+    fig = fig.figure
+    # Return the Figure object.
     return fig
 
 
 # 10
 def draw_heat_map():
+    """
+    Creates a heatmap visualising the correlation between different medical parameters after cleaning the data.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame containing the medical data.
+
+    Returns:
+        matplotlib.figure.Figure: The matplotlib Figure object containing the heatmap.
+    """
+
+    # --------------------------------- Clean the Data ---------------------------------
+
     # 11
     # Clean the data by filtering out rows based on conditions given in task
     df_heat = df[
@@ -114,14 +147,21 @@ def draw_heat_map():
         (df['weight'] <= df['weight'].quantile(0.975))    # Remove top 2.5% of 'weight' values
     ]
 
+
+    # --------------------------------- Correlation Matrix ---------------------------------
+
     # 12
     # Calculate the correlation matrix between all pairs of columns in the cleaned data
     corr = df_heat.corr()
+
+    # --------------------------------- Create Mask ---------------------------------
 
     # 13
     # Generate mask for the upper triangle of the correlation matrix to avoid redundant information
     # Note: 'triu' stands for 'triangle upper'
     mask = np.triu(corr)
+
+    # --------------------------------- Create Heatmap ---------------------------------
 
     # 14
     # Create a matplotlib figure and axes for plotting
@@ -136,6 +176,8 @@ def draw_heat_map():
         fmt='0.1f',     # Format the annotations to one decimal place
         square=True     # Make the heatmap cells square for better visual representation
     )
+
+    # --------------------------------- Save and Return ---------------------------------
 
     # 16
     fig.savefig('heatmap.png')
