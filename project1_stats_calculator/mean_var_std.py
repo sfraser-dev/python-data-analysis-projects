@@ -64,7 +64,7 @@ def calculate(list_of_numbers):
     print(f"\n---------- sum_along_rows: {sum_along_rows}")
     print(f"\n---------- sum_of_all_elements: {sum_of_all_elements}")
 
-    # Create dictionary
+    # Create dictionary to store results
     calculations = {
         'mean': [mean_along_columns, mean_along_rows, mean_of_all_elements],
         'variance': [variance_along_columns, variance_along_rows, variance_of_all_elements],

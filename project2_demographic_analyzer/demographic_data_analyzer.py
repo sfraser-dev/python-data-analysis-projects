@@ -56,16 +56,6 @@ def calculate_demographic_data(print_data=True):
     print("\n---------- higher_education:")
     print(higher_education)
 
-    # What percentage of people without advanced education (lower education) make more than 50K?
-    # Access education column
-    education_column = df['education']
-    # Create boolean mask for people with lower education levels
-    lower_education_mask = ~education_column.isin(advanced_education_levels)
-    # Use the boolean mask to filter the DataFrame for lower education levels
-    lower_education = df[lower_education_mask]
-    print("\n---------- lower_education:")
-    print(lower_education)
-
     # Filter higher education dataframe to only include people earning more than 50K
     # Access salary column for the higher education DF
     salary_column = higher_education['salary']
@@ -76,18 +66,28 @@ def calculate_demographic_data(print_data=True):
     print("\n---------- higher_education_rich:")
     print(higher_education_rich)
 
-    # Filter lower education dataframe to only include people earning more than 50K
-    # Create a boolean mask for salaries >50K then use it to filter the lower education DF
-    lower_education_rich = lower_education[lower_education['salary'] == '>50K']
-    print("\n---------- lower_education_rich:")
-    print(lower_education_rich)
-
     # Calculate percentage of people with advanced education who earn more than 50K
     # Number of higher_education_rich rows (.shape[0]) divided by total number of higher_education rows 
     higher_education_rich= round(
         (higher_education_rich.shape[0] / higher_education.shape[0]) * 100, 1
     )
     print(f"\n---------- higher_education_rich: {higher_education_rich}%")
+
+    # What percentage of people without advanced education (lower education) make more than 50K?
+    # Access education column
+    education_column = df['education']
+    # Create boolean mask for people with lower education levels
+    lower_education_mask = ~education_column.isin(advanced_education_levels)
+    # Use the boolean mask to filter the DataFrame for lower education levels
+    lower_education = df[lower_education_mask]
+    print("\n---------- lower_education:")
+    print(lower_education)
+
+    # Filter lower education dataframe to only include people earning more than 50K
+    # Create a boolean mask for salaries >50K then use it to filter the lower education DF
+    lower_education_rich = lower_education[lower_education['salary'] == '>50K']
+    print("\n---------- lower_education_rich:")
+    print(lower_education_rich)
 
     # Calculate percentage of people with lower education who earn more than 50K
     # Number of lower_education_rich rows (.shape[0]) divided by total number of lower_education rows
@@ -180,6 +180,7 @@ def calculate_demographic_data(print_data=True):
     print(f"\n---------- highest_earning_country: {highest_earning_country}")
 
     # Identify the most popular occupation for those who earn >50K in India.
+    # Filter by India and >50k
     india_rich_df = df[
         (df['native-country'] == 'India') & (df['salary'] == '>50K')
     ]
