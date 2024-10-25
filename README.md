@@ -16,4 +16,4 @@ Frameworks used:
 - Seaborn
 - Scipy
 
-Note: Jupyter Notebook implementations of these projects can be viewed here: https://github.com/sfraser-dev/python-data-analysis-projects-notebooks
+Note: Click [here](https://github.com/sfraser-dev/python-data-analysis-projects-notebooks) to view Jupyter Notebook implementations of these projects.
